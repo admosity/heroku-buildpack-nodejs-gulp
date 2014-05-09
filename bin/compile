@@ -99,15 +99,6 @@ rm -rf $cache_dir/node_modules # (for apps still on the older caching strategy)
 rm -rf $cache_dir/node
 mkdir -p $cache_dir/node
 
-# If app has a node_modules directory, cache it.
-if test -d $build_dir/node_modules; then
-  status "Caching node_modules directory for future builds"
-  cp -r $build_dir/node_modules $cache_dir/node
-fi
-
-# Copy goodies to the cache
-cp -r $build_dir/.heroku $cache_dir/node
-
 status "Cleaning up node-gyp and npm artifacts"
 rm -rf "$build_dir/.node-gyp"
 rm -rf "$build_dir/.npm"
@@ -142,13 +133,24 @@ echo "export PATH=\"\$HOME/vendor/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\
     fi
 
     # Install gulp locally
-    npm install gulp
+    if [ ! -e $build_dir/node_modules/.bin/gulp ]; then
+      npm install gulp
+    fi
     status "Found gulpfile, running gulp dist task"
     $build_dir/node_modules/.bin/gulp dist
   else
     status "No gulpfile found"
   fi
 )
+
+# If app has a node_modules directory, cache it.
+if test -d $build_dir/node_modules; then
+  status "Caching node_modules directory for future builds"
+  cp -r $build_dir/node_modules $cache_dir/node
+fi
+
+# Copy goodies to the cache
+cp -r $build_dir/.heroku $cache_dir/node
 
 # Post package.json to nomnom service
 # Use a subshell so failures won't break the build.
