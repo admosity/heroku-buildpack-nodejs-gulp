@@ -137,7 +137,7 @@ echo "export PATH=\"\$HOME/vendor/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\
       npm install gulp
     fi
     status "Found gulpfile, running gulp dist task"
-    if [ "$NODE_ENV" -eq "production" ]; then
+    if [ "$NODE_ENV" == "production" ]; then
       $build_dir/node_modules/.bin/gulp dist
     else
       $build_dir/node_modules/.bin/gulp
