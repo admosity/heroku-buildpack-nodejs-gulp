@@ -122,7 +122,14 @@ fi
 status "Building runtime environment"
 mkdir -p $build_dir/.profile.d
 echo "export PATH=\"\$HOME/vendor/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\$PATH\";" > $build_dir/.profile.d/nodejs.sh
-
+# restore bower 
+(
+  if [ -f $cache_dir/bower_components ]; then
+    mkdir $build_dir/bower_components
+    cp -r $cache_dir/bower_components $build_dir/bower_components
+  fi
+  
+)
 # Check and run gulp
 (
   if [ -f $build_dir/gulpfile.js ]; then
@@ -151,6 +158,13 @@ echo "export PATH=\"\$HOME/vendor/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\
 if test -d $build_dir/node_modules; then
   status "Caching node_modules directory for future builds"
   cp -r $build_dir/node_modules $cache_dir/node
+fi
+
+if test -d $build_dir/bower_components; then
+  status "Caching bower_components directory for future builds"
+  rm -rf $cache_dir/bower_components
+  mkdir $cache_dir/bower_components
+  cp -r $build_dir/bower_components $cache_dir/bower_components
 fi
 
 # Copy goodies to the cache
