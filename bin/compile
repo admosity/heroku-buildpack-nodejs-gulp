@@ -127,8 +127,21 @@ status "Building runtime environment"
 mkdir -p $build_dir/.profile.d
 echo "export PATH=\"\$HOME/vendor/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\$PATH\";" > $build_dir/.profile.d/nodejs.sh
 
-PATH="$BUILD_DIR/vendor/node/bin:$BUILD_DIR/bin:$BUILD_DIR/node_modules/.bin:$PATH"; if hash bower 2>/dev/null; then status "Installing/Restoring bower components"; bower install --config.storage.packages=vendor/bower/packages --config.storage.registry=vendor/bower/registry --config.tmp=vendor/bower/tmp; fi
-
+# PATH="$BUILD_DIR/vendor/node/bin:$BUILD_DIR/bin:$BUILD_DIR/node_modules/.bin:$PATH"; if hash bower 2>/dev/null; then status "Installing/Restoring bower components"; bower install --config.storage.packages=vendor/bower/packages --config.storage.registry=vendor/bower/registry --config.tmp=vendor/bower/tmp; fi
+(
+  if [ -f $build_dir/bower.json ]; then
+  
+    if [ -d "$env_dir" ]; then
+      status "Exporting config vars to environment"
+      export_env_dir $env_dir
+    fi
+    if [ ! -e $build_dir/node_modules/.bin/bower ]; then
+      npm install bower
+    fi
+    status "Found bower.json, running bower"
+    $build_dir/node_modules/.bin/bower install --config.storage.packages=vendor/bower/packages --config.storage.registry=vendor/bower/registry --config.tmp=vendor/bower/tmp
+  fi
+)
 
 # Check and run gulp
 (
