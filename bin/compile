@@ -55,6 +55,16 @@ PATH=$PATH:$build_dir/vendor/node/bin
 # Run subsequent node/npm commands from the build path
 cd $build_dir
 
+# restore bower 
+
+if test -d $cache_dir/bower_components; then
+  status "Restoring bower_components directory from cache"
+  mkdir $build_dir/bower_components
+  cp -r $cache_dir/bower_components $build_dir/bower_components
+fi
+  
+
+
 # If node_modules directory is checked into source control then
 # rebuild any native deps. Otherwise, restore from the build cache.
 if test -d $build_dir/node_modules; then
@@ -99,6 +109,8 @@ rm -rf $cache_dir/node_modules # (for apps still on the older caching strategy)
 rm -rf $cache_dir/node
 mkdir -p $cache_dir/node
 
+
+
 status "Cleaning up node-gyp and npm artifacts"
 rm -rf "$build_dir/.node-gyp"
 rm -rf "$build_dir/.npm"
@@ -122,14 +134,7 @@ fi
 status "Building runtime environment"
 mkdir -p $build_dir/.profile.d
 echo "export PATH=\"\$HOME/vendor/node/bin:\$HOME/bin:\$HOME/node_modules/.bin:\$PATH\";" > $build_dir/.profile.d/nodejs.sh
-# restore bower 
-(
-  if [ -f $cache_dir/bower_components ]; then
-    mkdir $build_dir/bower_components
-    cp -r $cache_dir/bower_components $build_dir/bower_components
-  fi
-  
-)
+
 # Check and run gulp
 (
   if [ -f $build_dir/gulpfile.js ]; then
